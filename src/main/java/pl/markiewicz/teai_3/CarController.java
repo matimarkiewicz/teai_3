@@ -22,22 +22,22 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CarModel>> getAllCarList() {
+    public ResponseEntity<List<Car>> getCarList() {
         return new ResponseEntity<>(carService.getCarList(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CarModel> getCarById(@PathVariable long id) {
-        Optional<CarModel> first = carService.getCarList().stream().filter(car -> car.getId() == id).findFirst();
-        if (first.isPresent()) {
-            return new ResponseEntity<>(first.get(), HttpStatus.OK);
+    public ResponseEntity<Car> getCarById(@PathVariable long id) {
+        Optional<Car> findedCarById = carService.getCarById(id);
+        if (findedCarById.isPresent()) {
+            return new ResponseEntity<>(findedCarById.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/getCarListByColor/{color}")
-    public ResponseEntity<List<CarModel>> getCarListByColor(@PathVariable String color) {
-        List<CarModel> findedCarListByColor = carService.getCarList().stream().filter(carModel -> carModel.getColor().
+    public ResponseEntity<List<Car>> getCarListByColor(@PathVariable String color) {
+        List<Car> findedCarListByColor = carService.getCarList().stream().filter(carModel -> carModel.getColor().
                 equals(color)).collect(Collectors.toList());
         if (findedCarListByColor != null && !findedCarListByColor.isEmpty()) {
             return new ResponseEntity<>(findedCarListByColor, HttpStatus.OK);
@@ -46,7 +46,7 @@ public class CarController {
     }
 
     @PostMapping
-    public ResponseEntity addCar(@RequestBody CarModel car) {
+    public ResponseEntity addCar(@RequestBody Car car) {
         boolean add = carService.getCarList().add(car);
         if (add) {
             return new ResponseEntity(HttpStatus.CREATED);
@@ -55,20 +55,19 @@ public class CarController {
     }
 
     @PutMapping
-    public ResponseEntity updateCar(@RequestBody CarModel modCar) {
-        Optional<CarModel> first = carService.getCarList().stream().filter(carModel -> carModel.getId()
-                == modCar.getId()).findFirst();
-        if (first.isPresent()) {
-            carService.getCarList().remove(first.get());
-            carService.getCarList().add(modCar);
+    public ResponseEntity updateCar(@RequestBody Car updatefullCar) {
+        Optional<Car> updatedCar = carService.getCarById(updatefullCar.getId());
+        if (updatedCar.isPresent()) {
+            carService.getCarList().remove(updatedCar.get());
+            carService.getCarList().add(updatefullCar);
             return new ResponseEntity(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping
-    public ResponseEntity updatePartCar(@RequestBody CarModel updateCar) {
-        Optional<CarModel> first = carService.getCarList().stream().filter(carModel -> carModel.getId()
+    public ResponseEntity updatePartCar(@RequestBody Car updateCar) {
+        Optional<Car> first = carService.getCarList().stream().filter(carModel -> carModel.getId()
                 == updateCar.getId()).findFirst();
         if (first.isPresent()) {
             if (updateCar.getColor() != null)
@@ -80,12 +79,12 @@ public class CarController {
 
             return new ResponseEntity(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CarModel> removeCar(@PathVariable long id) {
-        Optional<CarModel> removeCar = carService.getCarList().stream().filter(car -> car.getId() == id).findFirst();
+    public ResponseEntity<Car> removeCar(@PathVariable long id) {
+        Optional<Car> removeCar = carService.getCarById(id);
         if (removeCar.isPresent()) {
             carService.getCarList().remove(removeCar.get());
             return new ResponseEntity<>(removeCar.get(), HttpStatus.OK);

@@ -65,17 +65,16 @@ public class CarController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PatchMapping
-    public ResponseEntity updatePartCar(@RequestBody Car updateCar) {
-        Optional<Car> first = carService.getCarList().stream().filter(carModel -> carModel.getId()
-                == updateCar.getId()).findFirst();
-        if (first.isPresent()) {
+    @PatchMapping("/patch/{id}")
+    public ResponseEntity updatePartCar(@PathVariable long id, @RequestBody Car updateCar) {
+        Optional<Car> updatePart = carService.getCarById(id);
+        if (updatePart.isPresent()) {
             if (updateCar.getColor() != null)
-                first.get().setColor(updateCar.getColor());
+                updatePart.get().setColor(updateCar.getColor());
             if (updateCar.getMark() != null)
-                first.get().setMark(updateCar.getMark());
+                updatePart.get().setMark(updateCar.getMark());
             if (updateCar.getModel() != null)
-                first.get().setModel(updateCar.getModel());
+                updatePart.get().setModel(updateCar.getModel());
 
             return new ResponseEntity(HttpStatus.OK);
         }
